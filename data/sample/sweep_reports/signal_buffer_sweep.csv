@@ -1,0 +1,7 @@
+component,run_id,capacity,drop_policy,flush_interval_ms,produced,forwarded,dropped,buffer_residual
+signal_buffer,1,1024,oldest,50,8000,4000,3000,1000
+signal_buffer,2,4096,oldest,50,8000,4000,0,4000
+signal_buffer,3,4096,newest,50,8000,4000,4000,0
+signal_buffer,4,16384,oldest,50,8000,4000,0,4000
+signal_buffer,5,4096,oldest,10,8000,4000,0,4000
+signal_buffer,6,4096,oldest,200,8000,4000,0,4000

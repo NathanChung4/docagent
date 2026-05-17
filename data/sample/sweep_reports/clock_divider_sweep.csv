@@ -1,0 +1,10 @@
+component,run_id,divisor,jitter_budget_ps,phase_offset_deg,output_freq_mhz,jitter_ps,within_budget
+clock_divider,1,1,500,0.0,1000.0,100.0,1
+clock_divider,2,2,500,0.0,500.0,100.0,1
+clock_divider,3,4,500,0.0,250.0,100.0,1
+clock_divider,4,8,500,0.0,125.0,100.0,1
+clock_divider,5,16,500,0.0,62.5,100.0,1
+clock_divider,6,3,500,0.0,333.33,160.0,1
+clock_divider,7,5,500,0.0,200.0,160.0,1
+clock_divider,8,7,500,0.0,142.86,160.0,1
+clock_divider,9,3,150,0.0,333.33,160.0,0

@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head><title>Voltage Monitor — Component Wiki</title></head>
+<body>
+<h1>Voltage Monitor</h1>
+
+<h2>Overview</h2>
+<p>The voltage monitor samples the supply rail and emits an alert when the rail
+drifts outside a configurable tolerance window. It is a passive observer — it
+never adjusts the rail itself.</p>
+
+<h2>Parameters</h2>
+<ul>
+  <li><strong>nominal_voltage</strong> (float, 0.5–5.0, default 1.2) — expected supply voltage in volts.</li>
+  <li><strong>tolerance_pct</strong> (float, 0.1–20.0, default 5.0) — allowed deviation, as a percent of nominal.</li>
+  <li><strong>sample_hz</strong> (int, 1–10000, default 1000) — sampling frequency.</li>
+</ul>
+
+<h2>Validation Procedure</h2>
+<ol>
+  <li>Inject controlled voltage steps of ±1%, ±5%, and ±10% of nominal.</li>
+  <li>Confirm the monitor remains silent for steps inside <code>tolerance_pct</code> and alerts within one sample period for steps outside.</li>
+</ol>
+
+<h2>Known Issues</h2>
+<p>The monitor cannot distinguish a true rail event from a noisy probe. If you
+see frequent false alerts, check probe shielding before adjusting
+<code>tolerance_pct</code>.</p>
+</body>
+</html>

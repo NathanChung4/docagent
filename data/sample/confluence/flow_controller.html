@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<head><title>Flow Controller — Component Wiki</title></head>
+<body>
+<h1>Flow Controller</h1>
+
+<h2>Overview</h2>
+<p>The flow controller regulates the rate at which work units pass through the
+upstream pipeline. It exposes three tunable parameters and emits two telemetry
+metrics per work unit. Owners should validate the flow controller before any
+release that touches the pipeline scheduler.</p>
+
+<h2>Parameters</h2>
+<ul>
+  <li><strong>rate_limit</strong> (int, 1–1000, default 100) — maximum work units per second.</li>
+  <li><strong>burst_size</strong> (int, 1–500, default 50) — number of units allowed above the steady-state rate during a short burst.</li>
+  <li><strong>backoff_ms</strong> (int, 0–5000, default 250) — pause inserted after each burst before the steady rate resumes.</li>
+</ul>
+
+<h2>Validation Procedure</h2>
+<ol>
+  <li>Stage a synthetic workload of 10,000 work units.</li>
+  <li>Sweep <code>rate_limit</code> across {50, 100, 200, 500} with the other two parameters at default.</li>
+  <li>Confirm steady-state throughput stays within 5% of the configured <code>rate_limit</code>.</li>
+  <li>Confirm latency p99 stays under 100ms at the default settings.</li>
+</ol>
+
+<h2>Known Issues</h2>
+<p>When <code>burst_size</code> exceeds <code>rate_limit</code>, the controller can briefly
+double-count units during the burst-to-steady transition. Until this is fixed in
+the next release, set <code>burst_size</code> ≤ <code>rate_limit</code> for production runs.</p>
+
+<h2>Related Components</h2>
+<p>Pairs naturally with the <em>signal buffer</em> downstream and the <em>clock divider</em> upstream.</p>
+</body>
+</html>

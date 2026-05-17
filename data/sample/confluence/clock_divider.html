@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head><title>Clock Divider — Component Wiki</title></head>
+<body>
+<h1>Clock Divider</h1>
+
+<h2>Overview</h2>
+<p>The clock divider derives a slower, jitter-controlled clock from the master
+reference and supplies it to the rest of the pipeline. All downstream components
+share whatever clock the divider produces.</p>
+
+<h2>Parameters</h2>
+<ul>
+  <li><strong>divisor</strong> (int, 1–256, default 8) — integer divider applied to the master clock.</li>
+  <li><strong>jitter_budget_ps</strong> (int, 10–10000, default 500) — maximum allowed cycle-to-cycle jitter, in picoseconds.</li>
+  <li><strong>phase_offset_deg</strong> (float, 0.0–359.9, default 0.0) — phase shift applied to the divided clock relative to the reference.</li>
+</ul>
+
+<h2>Validation Procedure</h2>
+<ol>
+  <li>Lock the master reference at its nominal frequency.</li>
+  <li>Sweep <code>divisor</code> across {1, 2, 4, 8, 16, 32} and confirm the output frequency matches reference / divisor within 0.1%.</li>
+  <li>Measure cycle-to-cycle jitter and confirm it stays under <code>jitter_budget_ps</code> at every divisor setting.</li>
+</ol>
+
+<h2>Known Issues</h2>
+<p>Non-power-of-two divisors (3, 5, 7, …) increase output jitter. If your design
+needs an odd divisor, raise <code>jitter_budget_ps</code> by at least 50%.</p>
+</body>
+</html>

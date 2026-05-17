@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head><title>Pressure Sensor — Component Wiki</title></head>
+<body>
+<h1>Pressure Sensor</h1>
+
+<h2>Overview</h2>
+<p>The pressure sensor reports the load on the input queue once per sampling
+interval. Downstream schedulers use its readings to apply backpressure when the
+queue depth grows beyond safe limits.</p>
+
+<h2>Parameters</h2>
+<ul>
+  <li><strong>sample_interval_ms</strong> (int, 10–10000, default 100) — how often the sensor reads queue depth.</li>
+  <li><strong>warn_threshold</strong> (int, 0–100, default 70) — percent fill at which a warning event is emitted.</li>
+  <li><strong>crit_threshold</strong> (int, 0–100, default 90) — percent fill at which the sensor signals critical pressure and asks upstream to throttle.</li>
+</ul>
+
+<h2>Validation Procedure</h2>
+<ol>
+  <li>Drive the input queue from 0% to 100% fill in 10% steps.</li>
+  <li>Confirm a warn event fires at 70% and a crit event at 90%, with no false positives below those thresholds.</li>
+  <li>Sweep <code>sample_interval_ms</code> across {50, 100, 250, 500} and confirm event latency scales linearly.</li>
+</ol>
+
+<h2>Known Issues</h2>
+<p>If <code>warn_threshold</code> ≥ <code>crit_threshold</code>, the sensor refuses to start
+and logs a configuration error. This is intentional — do not work around it by
+clamping in user code.</p>
+</body>
+</html>

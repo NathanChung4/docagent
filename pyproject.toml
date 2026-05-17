@@ -1,0 +1,86 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "knowledge-rag"
+version = "0.1.0"
+description = "Domain-pluggable RAG system for technical documentation"
+requires-python = ">=3.11"
+license = { text = "MIT" }
+authors = [{ name = "Nathan Chung" }]
+dependencies = [
+    "beautifulsoup4>=4.12",
+    "openpyxl>=3.1",
+    "sentence-transformers>=2.7",
+    "psycopg[binary,pool]>=3.2",
+    "pgvector>=0.3",
+    "rank-bm25>=0.2.2",
+    "numpy>=1.26",
+    "anthropic>=0.40",
+    "fastapi>=0.115",
+    "uvicorn[standard]>=0.32",
+    "sse-starlette>=2.1",
+    "httpx>=0.27",
+    "streamlit>=1.39",
+    "matplotlib>=3.8",
+    "plotly>=5.20",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.4",
+    "pytest-cov>=4.1",
+    "pytest-asyncio>=0.24",
+    "testcontainers[postgres]>=4.7",
+    "ruff>=0.6",
+]
+
+[tool.setuptools.packages.find]
+where = ["src", "."]
+include = ["knowledge_rag*", "domains*"]
+exclude = ["tests*", "data*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+addopts = "-v --tb=short"
+markers = [
+    "slow: tests that load large models or run long; deselect with -m 'not slow'",
+]
+asyncio_mode = "auto"
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+extend-exclude = [
+    ".venv",
+    "knowledge_rag.egg-info",
+    "data",
+    "results",
+    "postgres-data",
+]
+
+[tool.ruff.lint]
+select = [
+    "E",   # pycodestyle errors
+    "F",   # pyflakes
+    "W",   # pycodestyle warnings
+    "I",   # isort
+    "UP",  # pyupgrade
+    "B",   # flake8-bugbear
+]
+ignore = [
+    "E501",  # line too long — many docstrings exceed; defer to formatter
+    "B008",  # function call in default arg — common in FastAPI Depends() usage
+    # UP038 (use `X | Y` over `(X, Y)` in isinstance) was removed from newer ruff
+    # because the tuple form is faster at runtime via the C iteration path. Older
+    # ruff (e.g. 0.6.x in CI) still flags it; ignoring here keeps both versions happy.
+    "UP038",
+]
+
+[tool.ruff.lint.per-file-ignores]
+# Tests use star-import-style fixtures and longer fake objects; relax bugbear noise there.
+"tests/*" = ["B011"]
+# Scripts intentionally mutate sys.path before app imports so they run as standalone files.
+"scripts/*" = ["E402"]

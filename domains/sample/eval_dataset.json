@@ -1,0 +1,69 @@
+[
+  {
+    "id": "q1",
+    "question": "What is the default rate_limit for the flow controller?",
+    "expected_answer_contains": ["100"],
+    "expected_sources": ["flow_controller.html"],
+    "kind": "qa"
+  },
+  {
+    "id": "q2",
+    "question": "What happens when warn_threshold is greater than or equal to crit_threshold on the pressure sensor?",
+    "expected_answer_contains": ["refuses to start", "configuration error"],
+    "expected_sources": ["pressure_sensor.html"],
+    "kind": "qa"
+  },
+  {
+    "id": "q3",
+    "question": "Which kp setting gives the lowest overshoot for the temperature regulator?",
+    "expected_answer_contains": ["0.5", "1.2"],
+    "expected_sources": ["temp_regulator_sweep.csv"],
+    "kind": "qa"
+  },
+  {
+    "id": "q4",
+    "question": "Who owns the voltage_monitor and what is its current status?",
+    "expected_answer_contains": ["jamie.t", "blocked"],
+    "expected_sources": ["components.xlsx"],
+    "kind": "qa"
+  },
+  {
+    "id": "q5",
+    "question": "Generate a config file for the clock divider with divisor=4 and jitter_budget_ps=300",
+    "expected_tool": "generate_config_file",
+    "expected_tool_args": {
+      "item_name": "clock_divider",
+      "params": {"divisor": 4, "jitter_budget_ps": 300}
+    },
+    "kind": "tool"
+  },
+  {
+    "id": "q6",
+    "question": "Summarize the latest sweep report for the temperature regulator and tell me the winning run.",
+    "expected_tool": "summarize_report",
+    "expected_tool_args": {
+      "item_name": "temp_regulator"
+    },
+    "kind": "tool"
+  },
+  {
+    "id": "q7",
+    "question": "What is the current status of the voltage_monitor in the project checklist?",
+    "expected_tool": "lookup_item_status",
+    "expected_tool_args": {
+      "item_name": "voltage_monitor"
+    },
+    "kind": "tool"
+  },
+  {
+    "id": "q8",
+    "question": "Generate a config file for the flow_controller with rate_limit=50000.",
+    "expected_tool": "generate_config_file",
+    "expected_tool_args": {
+      "item_name": "flow_controller",
+      "params": {"rate_limit": 50000}
+    },
+    "expected_validation_error": true,
+    "kind": "tool"
+  }
+]

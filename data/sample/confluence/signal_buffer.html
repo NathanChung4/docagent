@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head><title>Signal Buffer — Component Wiki</title></head>
+<body>
+<h1>Signal Buffer</h1>
+
+<h2>Overview</h2>
+<p>The signal buffer absorbs short-term mismatches between producer and consumer
+rates. It is sized for a few hundred milliseconds of typical traffic and will
+drop the oldest entries when full.</p>
+
+<h2>Parameters</h2>
+<ul>
+  <li><strong>capacity</strong> (int, 16–65536, default 4096) — number of entries the buffer can hold.</li>
+  <li><strong>drop_policy</strong> (str, one of "oldest" or "newest", default "oldest") — which entry is dropped when capacity is exceeded.</li>
+  <li><strong>flush_interval_ms</strong> (int, 1–10000, default 50) — period at which buffered entries are forwarded downstream.</li>
+</ul>
+
+<h2>Validation Procedure</h2>
+<ol>
+  <li>Produce at 2× the sustained consumer rate for 5 seconds.</li>
+  <li>Confirm dropped-entry count matches the expected (producer_rate − consumer_rate) × duration within 5%.</li>
+  <li>Confirm <code>drop_policy</code>="oldest" preserves the most recent entries.</li>
+</ol>
+
+<h2>Known Issues</h2>
+<p>Setting <code>capacity</code> above 16384 increases per-entry latency because the
+underlying ring buffer's index becomes harder to keep in cache. Use only when
+you genuinely need the depth.</p>
+</body>
+</html>

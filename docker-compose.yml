@@ -1,0 +1,79 @@
+# Local-dev infrastructure for the knowledge-RAG stack.
+#
+# Three services:
+#   - postgres : pgvector store (Phase 4.7)
+#   - api      : FastAPI backend on :8000 (Phase 7)
+#   - ui       : Streamlit frontend on :8501 (Phase 8)
+#
+# Quick start:
+#   export ANTHROPIC_API_KEY=sk-...     # required for generation/agent paths
+#   docker compose up -d
+#   docker compose run --rm api python scripts/ingest_sample.py   # one-time index
+#   open http://localhost:8501
+#
+# Run the eval suite directly without bringing the API up:
+#   docker compose up -d postgres
+#   KNOWLEDGE_DB_DSN=postgresql://postgres:postgres@localhost:5432/postgres \
+#     KNOWLEDGE_DOMAIN=sample .venv/Scripts/python.exe scripts/run_eval.py --reset
+
+services:
+  postgres:
+    image: pgvector/pgvector:pg16
+    container_name: knowledge_rag_postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  api:
+    build:
+      context: .
+    image: knowledge-rag:latest
+    container_name: knowledge_rag_api
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      KNOWLEDGE_DOMAIN: sample
+      KNOWLEDGE_DB_DSN: postgresql://postgres:postgres@postgres:5432/postgres
+      # Optional — only required for /api/query (generation + agent paths).
+      # Read from host env; empty string is fine for retrieval-only smoke tests.
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+    ports:
+      - "8000:8000"
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/api/stats')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+
+  ui:
+    image: knowledge-rag:latest
+    container_name: knowledge_rag_ui
+    depends_on:
+      api:
+        condition: service_healthy
+    environment:
+      KNOWLEDGE_RAG_API_URL: http://api:8000
+    command:
+      - streamlit
+      - run
+      - src/knowledge_rag/dashboard.py
+      - --server.address=0.0.0.0
+      - --server.port=8501
+      - --server.headless=true
+    ports:
+      - "8501:8501"
+
+volumes:
+  postgres-data:

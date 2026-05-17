@@ -1,0 +1,9 @@
+component,run_id,rate_limit,burst_size,backoff_ms,throughput,latency_p99_ms,dropped_units
+flow_controller,1,50,50,250,49.8,52.1,12
+flow_controller,2,100,50,250,99.3,55.0,3
+flow_controller,3,200,50,250,198.7,58.4,0
+flow_controller,4,500,50,250,494.2,72.6,0
+flow_controller,5,100,100,250,98.9,75.3,8
+flow_controller,6,100,200,250,97.1,150.2,42
+flow_controller,7,100,50,500,99.4,55.1,5
+flow_controller,8,100,50,1000,99.0,55.0,7

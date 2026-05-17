@@ -1,0 +1,45 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+dist/
+build/
+.eggs/
+venv/
+.venv/
+
+# IDE
+.vscode/
+.idea/
+
+# Environment
+.env
+*.env.local
+
+# Data — ignore all by default, allow sample data
+data/*
+!data/sample/
+
+# Tool-generated artifacts — recreated on demand, not source of truth.
+data/sample/generated/
+
+# Vector store — Postgres data volume from docker-compose (pgvector, Phase 4.7+)
+postgres-data/
+
+# Eval runner output — transient run artifacts. Promote specific baselines
+# to docs/eval/baselines/ when we want to preserve them across migrations.
+results/
+
+# Database
+*.db
+*.sqlite3
+
+# Docker
+docker-compose.override.yml
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Claude
+.claude/

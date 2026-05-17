@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head><title>Temperature Regulator — Component Wiki</title></head>
+<body>
+<h1>Temperature Regulator</h1>
+
+<h2>Overview</h2>
+<p>The temperature regulator monitors the operating temperature of the worker pool
+and adjusts the active worker count to keep the pool inside its safe thermal
+envelope. It is most active during sustained high-throughput periods.</p>
+
+<h2>Parameters</h2>
+<ul>
+  <li><strong>target_temp_c</strong> (float, 30.0–80.0, default 65.0) — target steady-state temperature.</li>
+  <li><strong>kp</strong> (float, 0.1–10.0, default 1.5) — proportional gain in the regulator's PID loop.</li>
+  <li><strong>ki</strong> (float, 0.0–5.0, default 0.3) — integral gain in the PID loop.</li>
+  <li><strong>min_workers</strong> (int, 1–32, default 4) — never reduce the worker count below this floor.</li>
+</ul>
+
+<h2>Validation Procedure</h2>
+<ol>
+  <li>Run a sustained CPU-bound workload for 10 minutes at default settings.</li>
+  <li>Confirm temperature stays within ±2°C of <code>target_temp_c</code> for the final 5 minutes.</li>
+  <li>Sweep <code>kp</code> across {0.5, 1.0, 1.5, 3.0} and capture overshoot and settling time.</li>
+</ol>
+
+<h2>Known Issues</h2>
+<p>Aggressive PID gains (<code>kp</code> &gt; 3.0) can cause the regulator to oscillate
+the worker count, which in turn causes upstream queues to oscillate. Prefer
+gentler gains in production.</p>
+</body>
+</html>

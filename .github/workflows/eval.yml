@@ -1,0 +1,83 @@
+name: eval
+
+# Runs the retrieval-eval suite against the sample domain on every PR and
+# fails the build if recall@5 / MRR drop below their floors. Free — no
+# Anthropic API call (this is --mode retrieval; the answer/tool judges are
+# not run in CI to keep the gate cost-zero).
+#
+# Threshold rationale (see README "Eval-as-CI" section): floors are set well
+# below the most recent measured baseline so genuine regressions trip the
+# gate but ordinary cross-platform / library-version noise doesn't. The
+# domain-specific numbers in the README are the real benchmark; this gate is
+# a smoke test that the retrieval pipeline still works.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+concurrency:
+  group: eval-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # NOTE: the postgres service block, install-deps step, and HF cache step
+  # below are duplicated in ci.yml's `test` job. Keep them in sync.
+  retrieval-eval:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: pgvector/pgvector:pg16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      KNOWLEDGE_DOMAIN: sample
+      KNOWLEDGE_DB_DSN: postgresql://postgres:postgres@localhost:5432/postgres
+      HF_HOME: ${{ github.workspace }}/.hf-cache
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+          cache-dependency-path: requirements.txt
+      - name: Install deps
+        run: |
+          pip install -r requirements.txt
+          pip install -e .
+      - name: Cache Hugging Face models
+        uses: actions/cache@v4
+        with:
+          path: ${{ env.HF_HOME }}
+          key: hf-${{ runner.os }}-st-MiniLM-L6-bge-reranker-base
+
+      - name: Run retrieval eval (sample domain)
+        run: python scripts/run_eval.py --domain sample --mode retrieval --reset
+
+      - name: Check thresholds
+        # Floors derived from the 2026-05-11 sample baseline (MRR=0.646,
+        # recall@5=1.0 over 4 QA). Set ~75% of MRR baseline and -25pp on
+        # recall@5 so a genuine regression that loses one question's recall
+        # trips the gate. Verified red on commit 9421e9b — bumping the MRR
+        # floor to 0.99 produced the expected gate failure.
+        run: |
+          python scripts/check_eval_thresholds.py "results/eval_sample_*.json" \
+            --min-mrr 0.50 \
+            --min-recall-5 0.75
+
+      - name: Upload results JSON
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: eval-results
+          path: results/eval_sample_*.json
+          retention-days: 14
