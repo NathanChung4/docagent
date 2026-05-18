@@ -2,12 +2,25 @@
 
 **A retrieval-augmented agent for technical documentation.** Streams grounded answers with source citations, dispatches validated tools to produce real artifacts (config files, sweep summaries, status lookups), and ships with a domain-pluggable architecture so swapping the corpus is an env var, not a fork.
 
-[![ci](https://github.com/USER/docagent/actions/workflows/ci.yml/badge.svg)](https://github.com/USER/docagent/actions/workflows/ci.yml)
-[![eval](https://github.com/USER/docagent/actions/workflows/eval.yml/badge.svg)](https://github.com/USER/docagent/actions/workflows/eval.yml)
+[![ci](https://github.com/NathanChung4/docagent/actions/workflows/ci.yml/badge.svg)](https://github.com/NathanChung4/docagent/actions/workflows/ci.yml)
+[![eval](https://github.com/NathanChung4/docagent/actions/workflows/eval.yml/badge.svg)](https://github.com/NathanChung4/docagent/actions/workflows/eval.yml)
+[![hf-space](https://img.shields.io/badge/%F0%9F%A4%97%20Hugging%20Face-Live%20Demo-yellow)](https://huggingface.co/spaces/nathanwjchung/docagent)
 
-> **Live demo:** _coming soon — Hugging Face Spaces deploy in progress._
+> **Live demo:** [huggingface.co/spaces/nathanwjchung/docagent](https://huggingface.co/spaces/nathanwjchung/docagent) — try it in your browser, no setup.
 >
-> _Screenshots will be added once the live demo is up._
+> First request takes ~60s while the corpus ingests on cold start; subsequent queries return in <1s.
+
+**Streaming answer with sources** — tokens render as they arrive; the citation footer links back to the retrieved chunks.
+
+![Streaming answer with sources](docs/screenshots/streaming-answer.png)
+
+**Tool dispatch** — when the prompt is an imperative, the agent calls a validated tool and the artifact drops into chat.
+
+![Agent dispatches a tool](docs/screenshots/tool-call.png)
+
+**Validation self-correction** — the agent cross-references tool inputs against the retrieved spec before dispatching. Invalid parameters are refused with a citation, not silently passed through.
+
+![Agent refuses invalid tool input](docs/screenshots/validation-refusal.png)
 
 ## What it does
 
